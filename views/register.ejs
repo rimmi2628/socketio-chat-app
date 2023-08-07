@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+ <style>
+
+     /* Reset some default browser styles */
+body, h1, h2, h3, p, ul, li {
+  margin: 0;
+  margin-top: 2%;
+  padding: 0;
+  text-align: center;
+  text-decoration: solid;
+  color: black;
+}
+
+/* Apply some basic styling to the form */
+.reg {
+  width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  background-color: lightblue;
+}
+
+.reg form {
+  display: flex;
+  flex-direction: column;
+}
+
+.reg input, .reg button {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.reg button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.reg button:hover {
+  background-color: #45a049;
+}
+
+
+
+
+ </style>
+<h1>Rgistration Form...</h1>
+<body>
+    <%
+    if( typeof message != 'undefined'){
+     %>
+     <p style="color: green;"><%= message %></p>
+
+     <%
+    }
+ %>
+   <div class="reg">
+    <form action="/register" method="Post" enctype="multipart/form-data">
+        <input type="text" name="name"  placeholder="enter your name" required>
+        <br>
+        <br>
+        <input type="email" name="email"  placeholder="enter your email" required><br><br>
+        <input type="password" name="password"  placeholder="enter your password" required><br><br>
+        <input type="file" name="image"  placeholder="select your image" required><br><br>
+        <button type="submit">Submit</button>
+
+       
+       
+    </form>
+</div>
+
+    <%
+       if( typeof messa != 'undefined'){
+        %>
+        <p style="color: green;"><%= messa %></p>
+
+        <%
+       }
+    %>
+</body>
+</html>
