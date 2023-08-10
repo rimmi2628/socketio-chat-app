@@ -1,4 +1,5 @@
 const User = require('../models/UserModel');
+const Chat=require('../models/Chatmodel')
 const bcrypt=require('bcryptjs')
 
 
@@ -118,5 +119,21 @@ exports.getdashboard=async(req,res)=>{
     } catch (error) {
         console.log(error)
       
+    }
+}
+
+
+exports.chat=async(req,res)=>{
+    try {
+        const message= new Chat({
+            sender_id:req.body.sender_id,
+            receiver_id:req.body.receiver_id,
+            message:req.body.message
+        });
+       const chat= await message.save();
+        res.status(200).send({msg:"chat inserted",data:chat})
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({msg:error.mesage})
     }
 }

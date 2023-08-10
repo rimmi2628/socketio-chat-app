@@ -9,8 +9,8 @@
             if(users.length > 0){
                 for(let i=0; i<users.length;i++){
                     %>
-                    <li class="list-group-item list-group-item-dark cursor-pointer user-list">
-                        <img src="<%='http://localhost:3000/'+ users[i]['image'] %>
+                    <li class="list-group-item list-group-item-dark cursor-pointer user-list" data-id="<%= users[i]['_id']%>">
+                        <img src="<%='http://localhost:2000/'+ users[i]['image'] %>
                         " alt="" height="50px" width="50px">
                         <%= users[i]['name'] %>
 
@@ -52,7 +52,8 @@
         <h3 class="start-head"> Click to start the chat </h3>
         <div class="chat-section">
             <div id="chat-container">
-                
+               
+             
             </div>
             <form action="" id="chat-form">
                 <input type="text" name="message" placeholder="Enter the message" id="message" class="border" required>
@@ -70,6 +71,7 @@
 <script>
 
    const sender_id='<%= user._id %>'
+   var receiver_id;
    const socket= io('/user-namespace',{
             auth:{
                 token:'<%= user._id %>'
@@ -81,10 +83,13 @@
     $(document).ready(function(){
 
         $('.user-list').click(function(){
+            var user_id=$('this').attr('data-id')
+            receiver_id=user_id
             $('.start-head').hide();
             $('.chat-section').show();
 
         })
+        
     })
 
     socket.on('onlineuser',function(data){
@@ -99,6 +104,42 @@
         $('#'+data.userid+'-status').addClass('Offline-status')
         $('#'+data.userid+'-status').removeClass('Online-status')
        
+    })
+
+    $('#chat-form').submit(function(event){
+        event.preventDefault();
+        var message=$('#message').val();
+        $.ajax({
+            url:'/savechat',
+            type:'POST',
+            data:{sender_id:sender_id,receiver_id:receiver_id,message:message},
+            success:function(responce){
+                if(responce.success){
+                    $('#message').val('');
+                    let chat=responce.data.message;
+                    let html=` <div class="current-user-chat">
+                    <h2>`+chat +`</h2>
+
+                </div>`
+                $('#chat-container').append(html)
+                socket.emit('newchat',responce.data)
+              
+                }
+                else{
+                    alert(data.msg);
+                }
+            }
+        })
+
+    });
+    socket.on('loadnewchat',function(data){
+        if(sender_id== data.sender_id && receiver_id==data.receiver_id){
+        let html=` <div class="distance-user-chat">
+                    <h2>`+data.message +`</h2>
+
+                </div>`
+                $('#chat-container').append(html)
+            }
     })
 </script>
 

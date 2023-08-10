@@ -42,6 +42,10 @@ const User=require('./models/UserModel');
         await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'0'}});
 
         socket.broadcast.emit('offlineuser',{userid:user_id})
+        socket.on('newchat',function(data){
+          socket.broadcast.emit('loadnewchat', datas)
+
+        })
     })
 })
 
@@ -66,6 +70,6 @@ app.use(express.json());
 
 app.use(userroute)
 
-http.listen(3000,function(){
+http.listen(2000,function(){
     console.log("server is listen on port 3000");
 })
