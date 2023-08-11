@@ -16,6 +16,7 @@ router.get('/logout',auth.islogin,usercontroller.logout);
 
 router.get('/dashboard',auth.islogin,usercontroller.getdashboard);
 
+router.post('/savechat',auth.islogin,usercontroller.chat);
 router.get('*',function(req,res){
     res.redirect('/');
 })

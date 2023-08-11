@@ -131,9 +131,10 @@ exports.chat=async(req,res)=>{
             message:req.body.message
         });
        const chat= await message.save();
-        res.status(200).send({msg:"chat inserted",data:chat})
+       console.log(chat)
+        res.status(200).send({success:true,msg:"chat inserted",data:chat})
     } catch (error) {
         console.log(error)
-        res.status(500).send({msg:error.mesage})
+        res.status(500).send({success:false,msg:error.mesage})
     }
 }

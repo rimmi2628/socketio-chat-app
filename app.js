@@ -42,8 +42,11 @@ const User=require('./models/UserModel');
         await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'0'}});
 
         socket.broadcast.emit('offlineuser',{userid:user_id})
+
         socket.on('newchat',function(data){
-          socket.broadcast.emit('loadnewchat', datas)
+    
+          socket.broadcast.emit('loadnewchat', data)
+          console.log("HUNJ",data)
 
         })
     })

@@ -8359,16 +8359,16 @@ a[data-toggle="collapse"] {
   }
 
 .current-user-chat{
-  text-align: left;
+  text-align: right;
   margin: 10px;
 
   color: black;
   
 }
 .distance-user-chat{
-  text-align: right;
+  text-align: left;
   margin: 10px;
-color: black;
+ color: black;
   
 }
 

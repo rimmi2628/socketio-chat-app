@@ -52,8 +52,7 @@
         <h3 class="start-head"> Click to start the chat </h3>
         <div class="chat-section">
             <div id="chat-container">
-               
-             
+              
             </div>
             <form action="" id="chat-form">
                 <input type="text" name="message" placeholder="Enter the message" id="message" class="border" required>
@@ -83,8 +82,9 @@
     $(document).ready(function(){
 
         $('.user-list').click(function(){
-            var user_id=$('this').attr('data-id')
+            var user_id=$(this).attr('data-id')
             receiver_id=user_id
+            // console.log("KMkm",receiver_id)
             $('.start-head').hide();
             $('.chat-section').show();
 
@@ -108,39 +108,52 @@
 
     $('#chat-form').submit(function(event){
         event.preventDefault();
-        var message=$('#message').val();
+
+
+        var message= $('#message').val();
         $.ajax({
             url:'/savechat',
             type:'POST',
             data:{sender_id:sender_id,receiver_id:receiver_id,message:message},
+            
             success:function(responce){
+        // console.log(responce)
                 if(responce.success){
+                    
                     $('#message').val('');
                     let chat=responce.data.message;
-                    let html=` <div class="current-user-chat">
-                    <h2>`+chat +`</h2>
 
-                </div>`
-                $('#chat-container').append(html)
-                socket.emit('newchat',responce.data)
+                    let html = `<div class="current-user-chat">
+                    <h2>`+chat+`</h2>
+                      
+                    </div>`;
+                    $('#chat-container').append(html)
+              
+                  socket.emit('newchat',responce.data)
               
                 }
                 else{
                     alert(data.msg);
+                    
+
                 }
             }
         })
 
     });
     socket.on('loadnewchat',function(data){
-        if(sender_id== data.sender_id && receiver_id==data.receiver_id){
-        let html=` <div class="distance-user-chat">
-                    <h2>`+data.message +`</h2>
-
-                </div>`
-                $('#chat-container').append(html)
+        console.log("vvfdgvb")
+        if(sender_id===data.receiver_id && receiver_id===data.sender_id){
+          let html = `<div class="distance-user-chat">
+                    <h2>`+data.message+`</h2>
+                      
+                    </div>`;
+                    $('#chat-container').append(html)
+              
+               
             }
-    })
+        }
+    )
 </script>
 
 
