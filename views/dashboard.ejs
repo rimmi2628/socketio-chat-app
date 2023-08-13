@@ -71,11 +71,11 @@
 
    const sender_id='<%= user._id %>'
    var receiver_id;
-   const socket= io('/user-namespace',{
-            auth:{
-                token:'<%= user._id %>'
-            }
-   })
+   const socket = io('/user-namespace', {
+    auth: {
+        token: '<%= user._id %>'
+    }
+    });
 
 
 
@@ -141,19 +141,15 @@
         })
 
     });
-    socket.on('loadnewchat',function(data){
-        console.log("vvfdgvb")
-        if(sender_id===data.receiver_id && receiver_id===data.sender_id){
-          let html = `<div class="distance-user-chat">
-                    <h2>`+data.message+`</h2>
-                      
+    socket.on('loadnewchat', function (data) {
+    if (sender_id === data.receiver_id && receiver_id === data.sender_id) {
+        let html = `<div class="distance-user-chat">
+                    <h2>` + data.message + `</h2>
                     </div>`;
-                    $('#chat-container').append(html)
-              
-               
-            }
-        }
-    )
+        $('#chat-container').append(html);
+    }
+    });
+    
 </script>
 
 

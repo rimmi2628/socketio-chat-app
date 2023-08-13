@@ -21,36 +21,37 @@ const userroute=require('./routes/Userroutes');
 
 const User=require('./models/UserModel');
 
-  const usp=io.of('/user-namespace');
+  // ... Other code ...
 
-    usp.on('connection', async function(socket){
+const usp = io.of('/user-namespace');
 
+usp.on('connection', async function (socket) {
     console.log("User Connected");
 
-    const user_id=socket.handshake.auth.token;
- 
-      await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'1'}});
+    const user_id = socket.handshake.auth.token;
 
-      socket.broadcast.emit('onlineuser',{userid:user_id})
+    await User.findByIdAndUpdate({ _id: user_id }, { $set: { is_online: '1' } });
 
-      socket.on('disconnect', async function(){
+    socket.broadcast.emit('onlineuser', { userid: user_id });
 
-        console.log("User disconnect")
+    socket.on('disconnect', async function () {
+        console.log("User disconnect");
 
-        const user_id=socket.handshake.auth.token;
+        const user_id = socket.handshake.auth.token;
 
-        await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'0'}});
+        await User.findByIdAndUpdate({ _id: user_id }, { $set: { is_online: '0' } });
 
-        socket.broadcast.emit('offlineuser',{userid:user_id})
+        socket.broadcast.emit('offlineuser', { userid: user_id });
+    });
 
-        socket.on('newchat',function(data){
-    
-          socket.broadcast.emit('loadnewchat', data)
-          console.log("HUNJ",data)
+    socket.on('newchat', function (data) {
+        // Emit the event within the /user-namespace
+        usp.emit('loadnewchat', data);
+    });
+});
 
-        })
-    })
-})
+// ... Other code ...
+
 
 app.use(bodyParser.json());
 
