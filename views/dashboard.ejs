@@ -67,15 +67,48 @@
     </div>
 
 </div>
+
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="deleteChatModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Delete Chat</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <form id="delete-chat-form">
+
+        
+        <div class="modal-body">
+            <input type="hidden" name="id" id="delete-message-id">
+            <p>Are you sure you want to delete this chat</p>
+            <p><b id="delete-message"></b></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
+
+
+
 <script>
 
    const sender_id='<%= user._id %>'
    var receiver_id;
-   const socket= io('/user-namespace',{
-            auth:{
-                token:'<%= user._id %>'
-            }
-   })
+   const socket = io('/user-namespace', {
+    auth: {
+        token: '<%= user._id %>'
+    }
+    });
 
 
 
@@ -87,6 +120,9 @@
             // console.log("KMkm",receiver_id)
             $('.start-head').hide();
             $('.chat-section').show();
+
+
+            socket.emit('existchat',{sender_id:sender_id,receiver_id:receiver_id})
 
         })
         
@@ -123,14 +159,17 @@
                     $('#message').val('');
                     let chat=responce.data.message;
 
-                    let html = `<div class="current-user-chat">
-                    <h2>`+chat+`</h2>
+                    let html = `<div class="current-user-chat"  id='`+responce.data._id+`'>
+                    <h2>`+chat+`
+                        <i class="fa fa-trash" aria-hidden="true" data-id='`+responce.data._id+`' data-toggle="modal" data-target="#deleteChatModel"></i>
+                        
+                        </h2>
                       
                     </div>`;
                     $('#chat-container').append(html)
               
                   socket.emit('newchat',responce.data)
-              
+                  scrollchat()
                 }
                 else{
                     alert(data.msg);
@@ -141,19 +180,86 @@
         })
 
     });
-    socket.on('loadnewchat',function(data){
-        console.log("vvfdgvb")
-        if(sender_id===data.receiver_id && receiver_id===data.sender_id){
-          let html = `<div class="distance-user-chat">
-                    <h2>`+data.message+`</h2>
-                      
+    socket.on('loadnewchat', function (data) {
+    if (sender_id === data.receiver_id && receiver_id === data.sender_id) {
+        let html = `<div class="distance-user-chat" id='`+data._id+`'>
+                    <h2>` + data.message + `</h2>
                     </div>`;
-                    $('#chat-container').append(html)
-              
-               
+        $('#chat-container').append(html);
+    }
+    scrollchat()
+    });
+
+
+    socket.on('loadchat',function(data){
+        $('#chat-container').html('')
+
+        var chats=data.chats;
+        let html='';
+        for(let x=0; x<chats.length;x++){
+            let addclass='';
+            if(chats[x]['sender_id']==sender_id){
+                addclass='current-user-chat'
             }
+            else{
+                addclass='distance-user-chat'
+            }
+            html +=`<div class='`+addclass+`'>
+                    <h5>` + chats[x]['message']+``;
+                        if(chats[x]['sender_id']==sender_id){
+                          html+= `<i class="fa fa-trash" aria-hidden="true" data-id='`+chats[x]['_id']+`' data-toggle="modal" data-target="#deleteChatModel"></i>`
+                         }
+                     
+                        html+=`
+                        </h5>
+                       
+
+                    </div>`;
         }
-    )
+        $('#chat-container').append(html);
+        scrollchat();
+     
+    })
+    function scrollchat(){
+            $('#chat-container').animate({
+               scrollTop: $('#chat-container').offset().top +  $('#chat-container')[0].scrollHeight
+            },0)
+        }
+
+        $(document).on('click','.fa-trash',function(){
+            let msg=$(this).parent().text();
+
+            $('#delete-message').text(msg);
+            $('#delete-message-id').val($(this).attr('data-id'))
+        })
+
+        $('#delete-chat-form').submit(function(event){
+            event.preventDefault();
+            var id=$('#delete-message-id').val();
+
+            $.ajax({
+                url:'/deletechat',
+                type:'POST',
+                data:{id:id},
+                success:function(res){
+                    if(res.success==true){
+                        $('#'+id).remove();
+                        $("#deleteChatModel").modal('hide');
+                        socket.emit('chatdeleted',id)
+
+                    }else{
+                        alert(res.msg)
+                    }
+
+                }
+            })
+        })
+
+        socket.on('messagedeleted',function(id){
+            $('#'+id).remove();
+
+        })
+    
 </script>
 
 

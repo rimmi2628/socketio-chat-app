@@ -138,3 +138,16 @@ exports.chat=async(req,res)=>{
         res.status(500).send({success:false,msg:error.mesage})
     }
 }
+
+exports.deletechat=async(req,res)=>{
+    try {
+
+        await Chat.deleteOne({_id:req.body.id});
+        res.status(200).json({success:true,msg:"Chat delete successfully"});
+
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({success:false,msg:error.message})
+    }
+}

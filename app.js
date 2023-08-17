@@ -21,36 +21,53 @@ const userroute=require('./routes/Userroutes');
 
 const User=require('./models/UserModel');
 
-  const usp=io.of('/user-namespace');
+const Chat=require('./models/Chatmodel')
 
-    usp.on('connection', async function(socket){
+  // ... Other code ...
 
+const usp = io.of('/user-namespace');
+
+usp.on('connection', async function (socket) {
     console.log("User Connected");
 
-    const user_id=socket.handshake.auth.token;
- 
-      await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'1'}});
+    const user_id = socket.handshake.auth.token;
 
-      socket.broadcast.emit('onlineuser',{userid:user_id})
+    await User.findByIdAndUpdate({ _id: user_id }, { $set: { is_online: '1' } });
 
-      socket.on('disconnect', async function(){
+    socket.broadcast.emit('onlineuser', { userid: user_id });
 
-        console.log("User disconnect")
+    socket.on('disconnect', async function () {
+        console.log("User disconnect");
 
-        const user_id=socket.handshake.auth.token;
+        const user_id = socket.handshake.auth.token;
 
-        await User.findByIdAndUpdate({_id:user_id},{$set:{is_online:'0'}});
+        await User.findByIdAndUpdate({ _id: user_id }, { $set: { is_online: '0' } });
 
-        socket.broadcast.emit('offlineuser',{userid:user_id})
+        socket.broadcast.emit('offlineuser', { userid: user_id });
+    });
 
-        socket.on('newchat',function(data){
-    
-          socket.broadcast.emit('loadnewchat', data)
-          console.log("HUNJ",data)
+    socket.on('newchat', function (data) {
+        // Emit the event within the /user-namespace
+        usp.emit('loadnewchat', data);
+    });
 
-        })
+    socket.on('existchat',async function(data){
+      var chats=await Chat.find({$or:[{
+        sender_id:data.sender_id,
+        receiver_id:data.receiver_id},
+        {sender_id:data.receiver_id,receiver_id:data.sender_id}
+      ]})
+      socket.emit('loadchat',{chats: chats})
     })
-})
+
+    socket.on('chatdeleted',function(id){
+      usp.emit('messagedeleted',id)
+    })
+   
+});
+
+// ... Other code ...
+
 
 app.use(bodyParser.json());
 
@@ -74,5 +91,5 @@ app.use(express.json());
 app.use(userroute)
 
 http.listen(2000,function(){
-    console.log("server is listen on port 3000");
+    console.log("server is listen on port 2000");
 })
