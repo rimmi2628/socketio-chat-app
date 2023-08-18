@@ -21,9 +21,7 @@ const userroute=require('./routes/Userroutes');
 
 const User=require('./models/UserModel');
 
-const Chat=require('./models/Chatmodel')
-
-  // ... Other code ...
+  
 
 const usp = io.of('/user-namespace');
 
@@ -46,27 +44,15 @@ usp.on('connection', async function (socket) {
         socket.broadcast.emit('offlineuser', { userid: user_id });
     });
 
-    socket.on('newchat', function (data) {
-        // Emit the event within the /user-namespace
-        usp.emit('loadnewchat', data);
-    });
+        socket.broadcast.emit('offlineuser',{userid:user_id})
 
-    socket.on('existchat',async function(data){
-      var chats=await Chat.find({$or:[{
-        sender_id:data.sender_id,
-        receiver_id:data.receiver_id},
-        {sender_id:data.receiver_id,receiver_id:data.sender_id}
-      ]})
-      socket.emit('loadchat',{chats: chats})
+        socket.on('newchat',function(data){
+    
+          socket.broadcast.emit('loadnewchat', data)
+          console.log("HUNJ",data)
+
+        })
     })
-
-    socket.on('chatdeleted',function(id){
-      usp.emit('messagedeleted',id)
-    })
-   
-});
-
-// ... Other code ...
 
 
 app.use(bodyParser.json());
